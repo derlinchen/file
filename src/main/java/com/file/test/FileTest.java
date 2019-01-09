@@ -4,9 +4,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.file.utils.FileUtils;
 
@@ -14,7 +21,7 @@ public class FileTest {
 
 	public static void main(String[] args) {
 		try {
-			File file = new File("F:/1.pdm");
+			File file = new File("F:/1.jpg");
 
 			if (!file.exists()) {
 				// 判断文件上一级是否有文件夹，没有文件夹，先创建文件夹
@@ -28,41 +35,43 @@ public class FileTest {
 
 			FileInputStream fis = new FileInputStream(file);
 
-			urlmethod(file, fis);
+			httpmethod(file, fis);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void urlmethod(File file, FileInputStream fis) {
-		HttpURLConnection conn = null;
-        PrintWriter pw = null ;
-        BufferedReader rd = null ;
-        StringBuilder sb = new StringBuilder ();
-        String line = null ;
-        String response = null;
-		try {
-			conn = (HttpURLConnection) new URL("http://localhost:8080/file/upload.do").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setReadTimeout(20000);
-            conn.setConnectTimeout(20000);
-            conn.setUseCaches(false);
-            conn.connect();
-            pw = new PrintWriter(conn.getOutputStream());
-            pw.print("filename="+file.getName()+"&fileinfo="+FileUtils.encodeBase64File(fis));
-            pw.flush();
-            rd  = new BufferedReader( new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            while ((line = rd.readLine()) != null ) {
-                sb.append(line);
-            }
-            response = sb.toString();
-            System.out.println(response);
-		} catch (Exception e) {
-			e.printStackTrace();
+	public static void httpmethod(File file, FileInputStream fis) throws Exception {
+		// 创建httpclient对象
+		CloseableHttpClient client = HttpClients.createDefault();
+		// 创建post方式请求对象
+		HttpPost httpPost = new HttpPost("http://localhost:8080/file/upload.do");
+
+		// 装填参数
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		nvps.add(new BasicNameValuePair("filename", file.getName()));
+		nvps.add(new BasicNameValuePair("fileinfo", FileUtils.encodeBase64File(fis)));
+		// 设置参数到请求对象中
+		httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+
+		// 设置header信息
+		// 指定报文头【Content-type】、【User-Agent】
+		httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
+		httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+
+		// 执行请求操作，并拿到结果（同步阻塞）
+		CloseableHttpResponse response = client.execute(httpPost);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		StringBuffer sb = new StringBuffer("");
+		String line = "";
+		String newline = System.getProperty("line.separator");
+		while ((line = in.readLine()) != null) {
+			sb.append(line + newline);
 		}
+		in.close();
+		System.out.println(sb);
 	}
 
 }
