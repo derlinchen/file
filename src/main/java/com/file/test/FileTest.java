@@ -57,6 +57,7 @@ public class FileTest {
 
 		// 设置header信息
 		// 指定报文头【Content-type】、【User-Agent】
+		// 文件上传content-type必须设置为application/x-www-form-urlencoded
 		httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
 		httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 
