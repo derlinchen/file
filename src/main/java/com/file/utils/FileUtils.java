@@ -24,88 +24,6 @@ import sun.misc.BASE64Encoder;
 
 public class FileUtils {
 	
-	public static String string2File(String filename, String fileinfo, String filepath) {
-        byte[] buffer;
-        String rtv = "";
-		String systempath = "";
-        FileOutputStream out = null;
-        try {
-        	filename = DateUtils.getStamp()
-					+ filename.substring(filename.lastIndexOf("."));
-			if (isWindows()) {
-				systempath = Consts.WINDOWS_FOLDER_PATH;
-			} else {
-				systempath = Consts.LINUX_FOLDER_PATH;
-			}
-
-			if (StringUtils.isEmpty(filepath)) {
-				rtv = Consts.DEFAULT_FOLDER + filename;
-			} else {
-				rtv = filepath + filename;
-			}
-			
-			filepath = systempath + rtv;
-			
-            Base64 base64 = new Base64();
-            //解码
-            buffer = base64.decode(fileinfo);
-            out = new FileOutputStream(filepath);
-            out.write(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        
-        return rtv;
- 
-    }
-	
-	public static String file2String(File file) {
-        FileInputStream fis = null;
-        StringBuffer rtn = new StringBuffer();
-        try {
-            fis = new FileInputStream(file);
-            int len = (int) file.length();
-            byte[] bytes = new byte[len];
-            int length = -1;
- 
-            while ((length = fis.read(bytes, 0, bytes.length)) != -1) {
-                String encode = "";
-                if (length != bytes.length) {
-                    byte[] temp = new byte[length];
-                    System.arraycopy(bytes, 0, temp, 0, length);
-                    //使用BASE64转译
-                    Base64 base64 = new Base64();
-                    encode = base64.encodeToString(temp);
-                    rtn.append(encode);
-                } else {
-                    Base64 base64 = new Base64();
-                    encode = base64.encodeToString(bytes);
-                    rtn.append(encode);
-                }
-            }
- 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return rtn.toString();
-    }
-	
-	
-	
 	/**
 	 * 将文件流转为Base64字符串
 	 * 
@@ -113,11 +31,13 @@ public class FileUtils {
 	 *            文件流
 	 * @return
 	 */
-	public static String encodeBase64File(FileInputStream fis) {
+	public static String encodeBase64File(File file) {
+		FileInputStream fis = null;
 		String rtv = "";
 		try {
+			fis = new FileInputStream(file);
 			byte[] buffer = new byte[fis.available()];
-			if (buffer.length > 0) {
+			if (buffer.length > -1) {
 				fis.read(buffer);
 				rtv = new BASE64Encoder().encode(buffer);
 			}
