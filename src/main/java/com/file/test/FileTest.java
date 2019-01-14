@@ -51,7 +51,7 @@ public class FileTest {
 		// 装填参数
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("filename", file.getName()));
-		nvps.add(new BasicNameValuePair("fileinfo", FileUtils.encodeBase64File(fis)));
+		nvps.add(new BasicNameValuePair("fileinfo", FileUtils.file2String(file)));
 		// 设置参数到请求对象中
 		httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
 

@@ -6,22 +6,106 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.StringUtils;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
-public class FileUtils {
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
+public class FileUtils {
+	
+	public static String string2File(String filename, String fileinfo, String filepath) {
+        byte[] buffer;
+        String rtv = "";
+		String systempath = "";
+        FileOutputStream out = null;
+        try {
+        	filename = DateUtils.getStamp()
+					+ filename.substring(filename.lastIndexOf("."));
+			if (isWindows()) {
+				systempath = Consts.WINDOWS_FOLDER_PATH;
+			} else {
+				systempath = Consts.LINUX_FOLDER_PATH;
+			}
+
+			if (StringUtils.isEmpty(filepath)) {
+				rtv = Consts.DEFAULT_FOLDER + filename;
+			} else {
+				rtv = filepath + filename;
+			}
+			
+			filepath = systempath + rtv;
+			
+            Base64 base64 = new Base64();
+            //解码
+            buffer = base64.decode(fileinfo);
+            out = new FileOutputStream(filepath);
+            out.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        return rtv;
+ 
+    }
+	
+	public static String file2String(File file) {
+        FileInputStream fis = null;
+        StringBuffer rtn = new StringBuffer();
+        try {
+            fis = new FileInputStream(file);
+            int len = (int) file.length();
+            byte[] bytes = new byte[len];
+            int length = -1;
+ 
+            while ((length = fis.read(bytes, 0, bytes.length)) != -1) {
+                String encode = "";
+                if (length != bytes.length) {
+                    byte[] temp = new byte[length];
+                    System.arraycopy(bytes, 0, temp, 0, length);
+                    //使用BASE64转译
+                    Base64 base64 = new Base64();
+                    encode = base64.encodeToString(temp);
+                    rtn.append(encode);
+                } else {
+                    Base64 base64 = new Base64();
+                    encode = base64.encodeToString(bytes);
+                    rtn.append(encode);
+                }
+            }
+ 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return rtn.toString();
+    }
+	
+	
+	
 	/**
 	 * 将文件流转为Base64字符串
 	 * 
