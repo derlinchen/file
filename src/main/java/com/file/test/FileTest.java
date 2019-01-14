@@ -20,7 +20,7 @@ public class FileTest {
 
 	public static void main(String[] args) {
 		try {
-			File file = new File("F:/1.png");
+			File file = new File("F:/1.jpg");
 
 			if (!file.exists()) {
 				// 判断文件上一级是否有文件夹，没有文件夹，先创建文件夹
