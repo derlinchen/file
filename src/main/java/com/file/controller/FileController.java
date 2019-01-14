@@ -11,13 +11,13 @@ public class FileController {
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
 	public String upload(String filename, String fileinfo) {
-		String rtv = FileUtils.string2File(filename, fileinfo, null);
+		String rtv = FileUtils.decoderBase64File(filename, fileinfo, null);
 		return rtv;
 	}
 
 	@RequestMapping(value = "uploadpath", method = RequestMethod.POST)
 	public String uploadpath(String filename, String fileinfo, String filepath) {
-		String rtv = FileUtils.string2File(filename, fileinfo, filepath);
+		String rtv = FileUtils.decoderBase64File(filename, fileinfo, filepath);
 		return rtv;
 	}
 	
