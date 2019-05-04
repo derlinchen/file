@@ -20,5 +20,4 @@ public class FileController {
 		String rtv = FileUtils.decoderBase64File(filename, fileinfo, filepath);
 		return rtv;
 	}
-	
 }
